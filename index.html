@@ -61,3 +61,77 @@
     </script>
 </body>
 </html>
+<style>
+    /* Фікс для відображення на Google Sites */
+    body {
+        min-height: 100vh !important;
+        padding: 20px !important;
+    }
+    
+    .news-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+        max-height: none !important;
+    }
+    
+    .news-card {
+        background: #ffffff !important;
+        border-radius: 12px !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+        padding: 15px !important;
+    }
+    
+    .news-title {
+        font-family: 'Open Sans', sans-serif !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        color: black !important;
+        text-decoration: none !important;
+        display: block !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .badge {
+        background-color: #f0f0f0 !important;
+        border: 1px solid #aaa !important;
+        color: black !important;
+        padding: 3px 8px !important;
+        border-radius: 4px !important;
+        font-size: 12px !important;
+    }
+
+    /* Мобільна версія */
+    @media (max-width: 768px) {
+        .news-grid {
+            grid-template-columns: 1fr !important;
+        }
+        body {
+            padding: 10px !important;
+        }
+    }
+</style>
+
+<script>
+// Простий спосіб змінити висоту iframe
+function resizeIframe() {
+    try {
+        const height = document.documentElement.scrollHeight;
+        window.parent.postMessage({
+            type: 'set-iframe-height',
+            height: height
+        }, '*');
+    } catch (e) {
+        console.log('Cannot resize iframe');
+    }
+}
+
+// Спроба змінити розмір кілька разів
+setTimeout(resizeIframe, 100);
+setTimeout(resizeIframe, 500);
+setTimeout(resizeIframe, 1000);
+setTimeout(resizeIframe, 2000);
+
+// При зміні розміру вікна
+window.addEventListener('resize', resizeIframe);
+</script>
