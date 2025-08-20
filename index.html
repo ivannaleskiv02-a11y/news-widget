@@ -68,24 +68,40 @@
 </head>
 <body>
     <div id="news-container" class="news-grid">
-        <!-- Тут з'явиться контент -->
-        Завантаження...
+        Завантаження новин...
     </div>
 
     <script>
-        // URL вашого Google Apps Script (веб-додаток)
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbwQAhMOANTJLtRPVG6xUzdzU1tDVw130ntaMijn167yejGqs1ZveQlg8KdUofxo7JCLxg/exec'; // ЗАМІНИТЬ на ваш URL
+        // Функція для обробки JSONP відповіді
+        function handleNewsData(data) {
+            const newsContainer = document.getElementById('news-container');
+            if (data && data.length > 0) {
+                newsContainer.innerHTML = data.map(item => `
+                    <div class="news-card">
+                        <a href="${item.link}" class="news-title" target="_blank">${item.title}</a>
+                        <div class="news-meta">
+                            <span class="badge">${item.source}</span>
+                            <span>${new Date(item.date).toLocaleDateString('uk-UA')}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                newsContainer.innerHTML = '<p>Не вдалося завантажити новини.</p>';
+            }
+        }
 
-        // Отримати дані з Google Apps Script
-        fetch(scriptUrl)
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('news-container').innerHTML = html;
-            })
-            .catch(error => {
-                console.error('Помилка завантаження:', error);
-                document.getElementById('news-container').innerHTML = '<p>Не вдалося завантажити новини.</p>';
-            });
+        // Функція для обробки помилок
+        function handleNewsError() {
+            document.getElementById('news-container').innerHTML = '<p>Помилка завантаження новин.</p>';
+        }
+
+        // Створюємо script тег для JSONP запиту
+        const script = document.createElement('script');
+        script.src = 'https://https://script.google.com/macros/s/AKfycby80WD06Ucp_VADMjI5fA8o_ncFp0w3rHU4kphc42r6PG8gFLxGoU0ISTbBacYqGW-jZA/exec?callback=handleNewsData';
+        script.onerror = handleNewsError;
+        
+        // Додаємо script до документу для виконання запиту
+        document.head.appendChild(script);
     </script>
 </body>
 </html>
