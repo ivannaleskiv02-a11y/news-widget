@@ -5,20 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Новини</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: 'Open Sans', sans-serif;
             margin: 0;
             padding: 20px;
             background-color: #f3f3f3;
             color: black;
-            min-height: 100vh; /* Додано: розтягує на весь екран */
+            min-height: 100vh;
+            width: 100%;
         }
-        /* ... (решта стилів залишається без змін) ... */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            width: 100%;
+        }
+        .news-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            padding: 15px;
+            transition: transform 0.3s ease;
+            border: 1px solid #e0e0e0;
+        }
+        .news-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .news-title {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .news-title:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 10px;
+        }
+        .badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .date {
+            font-size: 11px;
+            color: #95a5a6;
+        }
+
+        /* Мобільна версія */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px !important;
+            }
+            .news-grid {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+            .news-card {
+                padding: 12px !important;
+            }
+            .news-title {
+                font-size: 15px !important;
+            }
+        }
+
+        /* Додаткові стилі для кращого відображення */
+        .news-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
-    <div id="news-container" class="news-grid">
-        Завантаження новин...
+    <div class="news-container">
+        <div id="news-container" class="news-grid">
+            <div class="news-card">
+                <div class="news-title">Завантаження новин...</div>
+                <div class="news-meta">
+                    <span class="badge">Оновлення</span>
+                    <span class="date">сьогодні</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -27,111 +118,44 @@
             if (data && data.length > 0) {
                 newsContainer.innerHTML = data.map(item => `
                     <div class="news-card">
-                        <a href="${item.link}" class="news-title" target="_blank">${item.title}</a>
+                        <a href="${item.link}" class="news-title" target="_blank" rel="noopener">${item.title}</a>
                         <div class="news-meta">
                             <span class="badge">${item.source}</span>
-                            <span>${new Date(item.date).toLocaleDateString('uk-UA')}</span>
+                            <span class="date">${new Date(item.date).toLocaleDateString('uk-UA')}</span>
                         </div>
                     </div>
                 `).join('');
-                
-                // Після завантаження даних спробуємо оновити iframe
-                setTimeout(tryResizeParent, 100);
             } else {
-                newsContainer.innerHTML = '<p>Не вдалося завантажити новини.</p>';
+                newsContainer.innerHTML = `
+                    <div class="news-card">
+                        <div class="news-title">Не вдалося завантажити новини</div>
+                        <div class="news-meta">
+                            <span class="badge">Помилка</span>
+                            <span class="date">${new Date().toLocaleDateString('uk-UA')}</span>
+                        </div>
+                    </div>
+                `;
             }
         }
 
-        function tryResizeParent() {
-            const height = document.documentElement.scrollHeight;
-            try {
-                window.parent.postMessage({
-                    type: 'resize-iframe',
-                    height: height + 50 // Додаємо відступ
-                }, '*');
-            } catch (e) {
-                console.log('Не вдалося змінити розмір iframe');
-            }
+        function handleNewsError() {
+            const newsContainer = document.getElementById('news-container');
+            newsContainer.innerHTML = `
+                <div class="news-card">
+                    <div class="news-title">Помилка завантаження</div>
+                    <div class="news-meta">
+                        <span class="badge">Помилка</span>
+                        <span class="date">${new Date().toLocaleDateString('uk-UA')}</span>
+                    </div>
+                </div>
+            `;
         }
 
-        // Спрощена обробка помилок
+        // Завантажуємо новини
         const script = document.createElement('script');
         script.src = 'https://script.google.com/macros/s/AKfycbz4lMKv72chfm3853AX1TnJFtF8FofOlWUQuSfthIqY9L5rjYzuUfNSHdqlLJGYsCYDkQ/exec?callback=handleNewsData';
+        script.onerror = handleNewsError;
         document.head.appendChild(script);
     </script>
 </body>
 </html>
-<style>
-    /* Фікс для відображення на Google Sites */
-    body {
-        min-height: 100vh !important;
-        padding: 20px !important;
-    }
-    
-    .news-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 20px !important;
-        max-height: none !important;
-    }
-    
-    .news-card {
-        background: #ffffff !important;
-        border-radius: 12px !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
-        padding: 15px !important;
-    }
-    
-    .news-title {
-        font-family: 'Open Sans', sans-serif !important;
-        font-size: 16px !important;
-        font-weight: bold !important;
-        color: black !important;
-        text-decoration: none !important;
-        display: block !important;
-        margin-bottom: 10px !important;
-    }
-    
-    .badge {
-        background-color: #f0f0f0 !important;
-        border: 1px solid #aaa !important;
-        color: black !important;
-        padding: 3px 8px !important;
-        border-radius: 4px !important;
-        font-size: 12px !important;
-    }
-
-    /* Мобільна версія */
-    @media (max-width: 768px) {
-        .news-grid {
-            grid-template-columns: 1fr !important;
-        }
-        body {
-            padding: 10px !important;
-        }
-    }
-</style>
-
-<script>
-// Простий спосіб змінити висоту iframe
-function resizeIframe() {
-    try {
-        const height = document.documentElement.scrollHeight;
-        window.parent.postMessage({
-            type: 'set-iframe-height',
-            height: height
-        }, '*');
-    } catch (e) {
-        console.log('Cannot resize iframe');
-    }
-}
-
-// Спроба змінити розмір кілька разів
-setTimeout(resizeIframe, 100);
-setTimeout(resizeIframe, 500);
-setTimeout(resizeIframe, 1000);
-setTimeout(resizeIframe, 2000);
-
-// При зміні розміру вікна
-window.addEventListener('resize', resizeIframe);
-</script>
