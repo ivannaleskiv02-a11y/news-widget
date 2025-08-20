@@ -97,7 +97,7 @@
 
         // Створюємо script тег для JSONP запиту
         const script = document.createElement('script');
-        script.src = 'https://script.google.com/macros/s/AKfycbzPnjnUMTjSUTL_ri8yElxf95PsA3ckeBx2i72SrxPVB9-R4DnMfYqtqSHixN1Bg9SnSw/exec?callback=handleNewsData';
+        script.src = 'https://script.google.com/macros/s/AKfycbxl-fM9T22SlL7P_01i3-pnz0Mmn6Kmb1X5fMsKboY-y_hNWK_jlPUro5vWcsdDy3OBIw/exec?callback=handleNewsData';
         script.onerror = handleNewsError;
         
         // Додаємо script до документу для виконання запиту
@@ -105,3 +105,38 @@
     </script>
 </body>
 </html>
+<script>
+// Функція для автоматичної зміни висоти iframe
+function resizeIframe() {
+    const iframe = document.querySelector('iframe');
+    if (iframe) {
+        // Отримуємо висоту контенту
+        const height = document.documentElement.scrollHeight;
+        // Встановлюємо висоту iframe
+        iframe.style.height = height + 'px';
+        
+        console.log('Висота iframe оновлена:', height + 'px');
+    }
+}
+
+// Викликаємо при завантаженні та при зміні розміру
+window.addEventListener('load', resizeIframe);
+window.addEventListener('resize', resizeIframe);
+
+// Також викликаємо через невелику затримку після завантаження контенту
+setTimeout(resizeIframe, 1000);
+setTimeout(resizeIframe, 3000);
+
+// Сповіщаємо батьківську сторінку (якщо iframe вставлений в інший сайт)
+function sendHeightToParent() {
+    const height = document.documentElement.scrollHeight;
+    window.parent.postMessage({
+        type: 'resize-iframe',
+        height: height
+    }, '*');
+}
+
+// Відправляємо висоту батьківському вікну
+window.addEventListener('load', sendHeightToParent);
+window.addEventListener('resize', sendHeightToParent);
+</script>
